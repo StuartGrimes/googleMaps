@@ -1,6 +1,9 @@
 var mapCanvas = document.getElementById('map');
 var myLatitude;
 var myLongitude;
+var myLatLng;
+var latit;
+var longit;
 
 function getLocation() {
     if (navigator.geolocation) {
@@ -13,6 +16,12 @@ function getLocation() {
 function initMap(myCoords) {
     myLatitude = myCoords.coords.latitude;
     myLongitude = myCoords.coords.longitude;
+    var directionsService = new google.maps.DirectionsService;
+    var directionsDisplay = new google.maps.DirectionsRenderer;
+    myLatLng = {
+        lat: myLatitude,
+        lng: myLongitude
+    };
     var map = new google.maps.Map(mapCanvas, {
         center: {lat: myLatitude, lng: myLongitude},
         zoom: 15,
@@ -26,6 +35,7 @@ function initMap(myCoords) {
         west: myCoords.coords.longitude - .010
     };
 
+
     var myLocation = new google.maps.Marker({
         position: {lat: myLatitude, lng: myLongitude},
         map: map,
@@ -38,15 +48,32 @@ function initMap(myCoords) {
     //     }, 3000);
     // });
 
-    myLocation.addListener('click', function () {
-        map.setZoom(8);
-        map.setCenter(myLocation.getPosition());
-    });
+    // myLocation.addListener('click', function () {
+    //     map.setZoom(8);
+    //     map.setCenter(myLocation.getPosition());
+    // });
+
 
     var locations = [
         ['Ragazzi', 53.201472, -6.111626],
-        ['McDonadls', 53.200543, -6.111079]
+        ['McDonalds', 53.200543, -6.111079]
     ];
+
+    var infoWindowContent = [
+        ['<div class="info_content">' +
+        '<h3>Galway</h3>' +
+        '<p>Galway Girl from here!</p>' + '</div>'
+        ],
+        ['<div>' +
+        '<h3>Cork</h3>' +
+        '<p>This is Cork Boeee!</p>' + '</div>'
+        ]
+    ];
+
+
+    // Display multiple markers on a map
+    var infoWindow = new google.maps.InfoWindow(),
+        marker, i;
 
     for (var i = 0; i < locations.length; ++i) {
         var position = new google.maps.LatLng(locations[i][1], locations[i][2]);
@@ -55,83 +82,36 @@ function initMap(myCoords) {
             map: map,
             title: locations[i][0]
         });
-        var easy = marker.position;
+
+
+        // Allow each marker to have an info window
+        google.maps.event.addListener(marker, 'click', (function (marker, i) {
+            return function () {
+                infoWindow.setContent(infoWindowContent[i][0]);
+                infoWindow.open(map, marker);
+                latit = marker.getPosition().lat();
+                longit = marker.getPosition().lng();
+            }
+        })(marker, i));
+
         marker.addListener('click', function () {
-            var destination;
-            // destination = {lat: 53.200543, lng: -6.111079};
-            // destination = "McDonalds, Bray, Co. Wicklow"
-            // destination = position;
-            destination = easy;
-            var origin;
-            // origin = "1 Rectory Slopes, Herbert Road, Bray";
-            // origin = this.latlng;
-            origin = {lat: myLatitude, lng: myLongitude};
-            ClickEventHandler(map, origin, destination).bind(this);
+            directionsService.route({
+                origin: myLatLng,
+                destination: {
+                    lat: latit,
+                    lng: longit
+                },
+                travelMode: 'WALKING'
+            }, function (response, status) {
+                if (status === 'OK') {
+                    directionsDisplay.setDirections(response);
+                    directionsDisplay.setMap(map);
+                } else {
+                    window.alert('Directions request failed due to ' + status);
+                }
+            });
         });
     }
-
-    /**
-     * @constructor
-     */
-    var ClickEventHandler = function (map, origin, destination) {
-        this.origin = origin;
-        this.destination = destination;
-        alert(JSON.stringify(origin, null, 4));
-        alert(JSON.stringify(destination, null, 4));
-        this.map = map;
-        this.directionsService = new google.maps.DirectionsService;
-        this.directionsDisplay = new google.maps.DirectionsRenderer;
-
-        // this.placesService = new google.maps.places.PlacesService(map);
-        // this.infowindow = new google.maps.InfoWindow;
-        // this.infowindowContent = document.getElementById('infowindow-content');
-        // this.infowindow.setContent(this.infowindowContent);
-        var me = this;
-        this.directionsService.route({
-            origin: this.origin,
-            destination: this.destination,
-            travelMode: 'WALKING'
-        }, function (response, status) {
-            if (status === 'OK') {
-                me.directionsDisplay.setDirections(response);
-            } else {
-                window.alert('Directions request failed due to ' + status);
-            }
-        });
-        this.directionsDisplay.setMap(map);
-    };
-
-    // ClickEventHandler.prototype.handleClick = function(event) {
-    //     console.log('You clicked on: ' + event.latLng);
-    //     // If the event has a placeId, use it.
-    //     if (event.placeId) {
-    //         console.log('You clicked on place:' + event.placeId);
-    //
-    //         // Calling e.stop() on the event prevents the default info window from
-    //         // showing.
-    //         // If you call stop here when there is no placeId you will prevent some
-    //         // other map click event handlers from receiving the event.
-    //         event.stop();
-    //
-    //         this.getPlaceInformation(event.placeId);
-    //     }
-    // };
-
-    // ClickEventHandler.prototype.calculateAndDisplayRoute = function(placeId) {
-    //     var me = this;
-    //     this.directionsService.route({
-    //         origin: this.origin,
-    //         destination: {placeId: placeId},
-    //         travelMode: 'WALKING'
-    //     }, function(response, status) {
-    //         if (status === 'OK') {
-    //             me.directionsDisplay.setDirections(response);
-    //         } else {
-    //             window.alert('Directions request failed due to ' + status);
-    //         }
-    //     });
-    // };
-
     map.fitBounds(bounds);
 }
 
