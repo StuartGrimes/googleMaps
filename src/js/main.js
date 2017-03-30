@@ -28,12 +28,13 @@ function initMap(myCoords) {
         mapTypeId: 'roadmap'
     });
 
-    var bounds = {
-        north: myCoords.coords.latitude + .010,
-        south: myCoords.coords.latitude - .010,
-        east: myCoords.coords.longitude + .010,
-        west: myCoords.coords.longitude - .010
-    };
+    var bounds = new google.maps.LatLngBounds();
+    // var bounds = {
+    //     north: myCoords.coords.latitude + .010,
+    //     south: myCoords.coords.latitude - .010,
+    //     east: myCoords.coords.longitude + .010,
+    //     west: myCoords.coords.longitude - .010
+    // };
 
 
     var myLocation = new google.maps.Marker({
@@ -56,7 +57,8 @@ function initMap(myCoords) {
 
     var locations = [
         ['Ragazzi', 53.201472, -6.111626],
-        ['McDonalds', 53.200543, -6.111079]
+        ['McDonalds', 53.200543, -6.111079],
+        ['clement pekoe', 53.341539, -6.262766]
     ];
 
     var infoWindowContent = [
@@ -67,13 +69,13 @@ function initMap(myCoords) {
         ['<div>' +
         '<h3>Cork</h3>' +
         '<p>This is Cork Boeee!</p>' + '</div>'
+        ],
+        ['<div>' +
+        '<h3>Cork</h3>' +
+        '<p>This is Cork Boeee!</p>' + '</div>'
         ]
     ];
 
-
-    // Display multiple markers on a map
-    var infoWindow = new google.maps.InfoWindow(),
-        marker, i;
 
     for (var i = 0; i < locations.length; ++i) {
         var position = new google.maps.LatLng(locations[i][1], locations[i][2]);
@@ -83,6 +85,9 @@ function initMap(myCoords) {
             title: locations[i][0]
         });
 
+        // Display multiple markers on a map
+        var infoWindow = new google.maps.InfoWindow(),
+            marker, i;
 
         // Allow each marker to have an info window
         google.maps.event.addListener(marker, 'click', (function (marker, i) {
@@ -112,6 +117,7 @@ function initMap(myCoords) {
             });
         });
     }
+    map.setMap(map);
     map.fitBounds(bounds);
 }
 
