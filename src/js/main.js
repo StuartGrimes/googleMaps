@@ -4,6 +4,15 @@ var myLongitude;
 var myLatLng;
 var latit;
 var longit;
+var locations = [
+    ['Ragazzi', 53.201472, -6.111626, ['<div class="info_content">' + '<h3>Galway</h3>' + '<p>Galway Girl from here!</p>' + '</div>']],
+    ['McDonalds', 53.200543, -6.111079, ['<div>' + '<h3>Cork</h3>' + '<p>This is Cork Boeee!</p>' + '</div>']],
+    ['clement pekoe', 53.341539, -6.262766, ['<div>' + '<h3>Cork</h3>' + '<p>This is Cork Boeee!</p>' + '</div>']]
+];
+var map;
+var marker;
+var directionsService;
+var directionsDisplay;
 
 function getLocation() {
     if (navigator.geolocation) {
@@ -16,26 +25,17 @@ function getLocation() {
 function initMap(myCoords) {
     myLatitude = myCoords.coords.latitude;
     myLongitude = myCoords.coords.longitude;
-    var directionsService = new google.maps.DirectionsService;
-    var directionsDisplay = new google.maps.DirectionsRenderer;
     myLatLng = {
         lat: myLatitude,
         lng: myLongitude
     };
-    var map = new google.maps.Map(mapCanvas, {
+    map = new google.maps.Map(mapCanvas, {
         center: {lat: myLatitude, lng: myLongitude},
         zoom: 15,
         mapTypeId: 'roadmap'
     });
 
     var bounds = new google.maps.LatLngBounds();
-    // var bounds = {
-    //     north: myCoords.coords.latitude + .010,
-    //     south: myCoords.coords.latitude - .010,
-    //     east: myCoords.coords.longitude + .010,
-    //     west: myCoords.coords.longitude - .010
-    // };
-
 
     var myLocation = new google.maps.Marker({
         position: {lat: myLatitude, lng: myLongitude},
@@ -43,63 +43,36 @@ function initMap(myCoords) {
         title: 'my location'
     });
 
-    // map.addListener('center_changed', function(){
-    //     window.setTimeout(function(){
-    //         map.panTo(marker.getPosition());
-    //     }, 3000);
-    // });
+    plotLocations(locations);
+}
 
-    // myLocation.addListener('click', function () {
-    //     map.setZoom(8);
-    //     map.setCenter(myLocation.getPosition());
-    // });
-
-
-    var locations = [
-        ['Ragazzi', 53.201472, -6.111626],
-        ['McDonalds', 53.200543, -6.111079],
-        ['clement pekoe', 53.341539, -6.262766]
-    ];
-
-    var infoWindowContent = [
-        ['<div class="info_content">' +
-        '<h3>Galway</h3>' +
-        '<p>Galway Girl from here!</p>' + '</div>'
-        ],
-        ['<div>' +
-        '<h3>Cork</h3>' +
-        '<p>This is Cork Boeee!</p>' + '</div>'
-        ],
-        ['<div>' +
-        '<h3>Cork</h3>' +
-        '<p>This is Cork Boeee!</p>' + '</div>'
-        ]
-    ];
-
+var plotLocations;
+plotLocations = function (locations) {
 
     for (var i = 0; i < locations.length; ++i) {
         var position = new google.maps.LatLng(locations[i][1], locations[i][2]);
-        var marker = new google.maps.Marker({
+        marker = new google.maps.Marker({
             position: position,
             map: map,
             title: locations[i][0]
         });
 
         // Display multiple markers on a map
-        var infoWindow = new google.maps.InfoWindow(),
-            marker, i;
+        var infoWindow = new google.maps.InfoWindow(), marker, i;
 
         // Allow each marker to have an info window
         google.maps.event.addListener(marker, 'click', (function (marker, i) {
             return function () {
-                infoWindow.setContent(infoWindowContent[i][0]);
+                infoWindow.setContent(locations[i][3]);
                 infoWindow.open(map, marker);
                 latit = marker.getPosition().lat();
                 longit = marker.getPosition().lng();
-            }
+            };
         })(marker, i));
 
         marker.addListener('click', function () {
+            directionsService = new google.maps.DirectionsService;
+            directionsDisplay = new google.maps.DirectionsRenderer;
             directionsService.route({
                 origin: myLatLng,
                 destination: {
@@ -116,24 +89,25 @@ function initMap(myCoords) {
                 }
             });
         });
+
     }
-    map.setMap(map);
     map.fitBounds(bounds);
-}
+};
+
 
 function showError(error) {
     switch (error.code) {
         case error.PERMISSION_DENIED:
-            mapCanvas.innerHTML = "User denied the request for Geolocation."
+            mapCanvas.innerHTML = "User denied the request for Geolocation.";
             break;
         case error.POSITION_UNAVAILABLE:
-            mapCanvas.innerHTML = "Location information is unavailable."
+            mapCanvas.innerHTML = "Location information is unavailable.";
             break;
         case error.TIMEOUT:
-            mapCanvas.innerHTML = "The request to get user location timed out."
+            mapCanvas.innerHTML = "The request to get user location timed out.";
             break;
         case error.UNKNOWN_ERROR:
-            mapCanvas.innerHTML = "An unknown error occurred."
+            mapCanvas.innerHTML = "An unknown error occurred.";
             break;
     }
 }
