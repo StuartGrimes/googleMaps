@@ -30,7 +30,10 @@ function initMap(myCoords) {
         lng: myLongitude
     };
     map = new google.maps.Map(mapCanvas, {
-        center: {lat: myLatitude, lng: myLongitude},
+        center: {
+            lat: myLatitude,
+            lng: myLongitude
+        },
         zoom: 15,
         mapTypeId: 'roadmap'
     });
@@ -38,7 +41,10 @@ function initMap(myCoords) {
     var bounds = new google.maps.LatLngBounds();
 
     var myLocation = new google.maps.Marker({
-        position: {lat: myLatitude, lng: myLongitude},
+        position: {
+            lat: myLatitude,
+            lng: myLongitude
+        },
         map: map,
         title: 'my location'
     });
@@ -47,7 +53,7 @@ function initMap(myCoords) {
 }
 
 var plotLocations;
-plotLocations = function (locations) {
+plotLocations = function(locations) {
 
     for (var i = 0; i < locations.length; ++i) {
         var position = new google.maps.LatLng(locations[i][1], locations[i][2]);
@@ -58,19 +64,30 @@ plotLocations = function (locations) {
         });
 
         // Display multiple markers on a map
-        var infoWindow = new google.maps.InfoWindow(), marker, i;
+        var infoWindow = new google.maps.InfoWindow(),
+            marker, i;
 
         // Allow each marker to have an info window
-        google.maps.event.addListener(marker, 'click', (function (marker, i) {
-            return function () {
-                infoWindow.setContent(locations[i][3]);
-                infoWindow.open(map, marker);
-                latit = marker.getPosition().lat();
-                longit = marker.getPosition().lng();
+        // google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        //     return function() {
+        //         infoWindow.setContent(locations[i][3].toString());
+        //         infoWindow.open(map, marker);
+        //         latit = marker.getPosition().lat();
+        //         longit = marker.getPosition().lng();
+        //     };
+        // })(marker, i));
+
+        google.maps.event.addListener(marker, 'click', (function(marker, i) {
+            return function() {
+                alert(locations[i][0].toString());
+                // infoWindow.setContent(locations[i][3].toString());
+                // infoWindow.open(map, marker);
+                // latit = marker.getPosition().lat();
+                // longit = marker.getPosition().lng();
             };
         })(marker, i));
 
-        marker.addListener('click', function () {
+        marker.addListener('click', function() {
             directionsService = new google.maps.DirectionsService;
             directionsDisplay = new google.maps.DirectionsRenderer;
             directionsService.route({
@@ -80,7 +97,7 @@ plotLocations = function (locations) {
                     lng: longit
                 },
                 travelMode: 'WALKING'
-            }, function (response, status) {
+            }, function(response, status) {
                 if (status === 'OK') {
                     directionsDisplay.setDirections(response);
                     directionsDisplay.setMap(map);
@@ -111,7 +128,3 @@ function showError(error) {
             break;
     }
 }
-
-
-
-

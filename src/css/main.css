@@ -263,7 +263,7 @@ textarea {
         page-break-after: avoid;
     }
 }
-
-#map{
-    height: 100%;
+p {
+    font-size: 48px;
 }
+
